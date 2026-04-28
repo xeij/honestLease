@@ -4,27 +4,54 @@ import os
 import anthropic
 
 SYSTEM_PROMPT = """You are a lease analysis assistant helping first-time renters understand their residential lease.
-Analyze the lease text and return a JSON object with this exact structure:
+
+Analyze the lease and return ONLY this JSON — no markdown fences, no extra text:
+
 {
-  "intro": "2-4 plain-English sentences summarizing the biggest concerns for a first-time renter",
+  "intro": "2-4 plain-English sentences covering the most important things a first-time renter needs to know about this lease",
+  "verdict": "standard" | "review" | "concern",
+  "keyNumbers": {
+    "monthlyRent": "dollar amount and frequency extracted from lease, or null",
+    "securityDeposit": "dollar amount extracted from lease, or null",
+    "leaseLength": "duration extracted from lease, or null",
+    "lateFee": "amount and grace period extracted from lease, or null",
+    "earlyTerminationFee": "amount or formula extracted from lease, or null"
+  },
   "categories": [
-    {"name": "Auto-Renewal Clauses", "severity": "red|yellow|green", "findings": ["..."]},
-    {"name": "Deposit Conditions", "severity": "red|yellow|green", "findings": ["..."]},
-    {"name": "Unusual Fees", "severity": "red|yellow|green", "findings": ["..."]},
-    {"name": "Missing Standard Clauses", "severity": "red|yellow|green", "findings": ["..."]}
+    {
+      "name": "Auto-Renewal Clauses",
+      "severity": "red" | "yellow" | "green",
+      "findings": [
+        {
+          "summary": "Plain-English explanation of what this means for the tenant",
+          "quote": "Verbatim excerpt from the lease this is based on (max 200 chars), or null for missing clauses",
+          "action": "Specific thing the tenant should say or ask for"
+        }
+      ]
+    }
   ]
 }
-Severity guide: red = watch out; yellow = worth asking about; green = looks normal.
-Always return all four categories. If nothing concerning, use severity "green" and findings ["No issues found — this looks normal."].
-Return ONLY valid JSON. No markdown. No explanation."""
+
+Rules:
+- verdict: "standard" = nothing unusual; "review" = 1-2 yellow flags; "concern" = any red flag present
+- severity: red = harmful to tenant; yellow = worth clarifying; green = nothing to worry about
+- Always return all four categories: Auto-Renewal Clauses, Deposit Conditions, Unusual Fees, Missing Standard Clauses
+- If a category has no issues: severity "green", one finding with summary "Nothing concerning here.", quote null, action "No action needed."
+- quote: copy text verbatim from the lease. Never paraphrase. For Missing Standard Clauses, always null.
+- action: be specific (e.g. "Ask the landlord to change the notice period from 60 days to 30 days").
+- keyNumbers: extract actual values. Set each field to null if not found in the lease.
+- Return ONLY valid JSON. No markdown. No explanation."""
 
 STRICT_SYSTEM_PROMPT = (
     SYSTEM_PROMPT
-    + "\n\nCRITICAL: Your previous response was not valid JSON. Return ONLY a raw JSON object."
+    + "\n\nCRITICAL: Your previous response was not valid JSON. Return ONLY a raw JSON object. No ```json wrapper."
 )
+
+MAX_INPUT_CHARS = 80_000  # ~20k tokens; keeps per-request cost under $0.09
 
 
 def analyze_lease(lease_text: str) -> dict:
+    lease_text = lease_text[:MAX_INPUT_CHARS]
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
     model = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
 

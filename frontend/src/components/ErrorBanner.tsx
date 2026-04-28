@@ -8,11 +8,11 @@ export function ErrorBanner({ message, onDismiss }: Props) {
     <div
       role="alert"
       style={{
-        background: "#fef2f2",
-        border: "1px solid #fecaca",
+        background: "rgba(248,81,73,0.1)",
+        border: "1px solid rgba(248,81,73,0.4)",
         borderRadius: 6,
         padding: "0.75rem 1rem",
-        color: "#b91c1c",
+        color: "#f85149",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "flex-start",
@@ -28,11 +28,12 @@ export function ErrorBanner({ message, onDismiss }: Props) {
             background: "none",
             border: "none",
             cursor: "pointer",
-            color: "#b91c1c",
+            color: "#f85149",
             fontWeight: 700,
+            flexShrink: 0,
           }}
         >
-          ✕
+          &#x2715;
         </button>
       )}
     </div>

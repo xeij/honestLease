@@ -43,24 +43,27 @@ export function DropZone({ onFile }: Props) {
   return (
     <div
       onDrop={onDrop}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragging(true);
-      }}
+      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
       onDragLeave={() => setDragging(false)}
       onClick={() => inputRef.current?.click()}
       style={{
-        border: `2px dashed ${dragging ? "#3b82f6" : "#d1d5db"}`,
-        borderRadius: 8,
-        padding: "2rem",
+        border: `2px dashed ${dragging ? "#58a6ff" : "#30363d"}`,
+        borderRadius: 10,
+        padding: "2.25rem 2rem",
         textAlign: "center",
         cursor: "pointer",
-        background: dragging ? "#eff6ff" : "#f9fafb",
+        background: dragging ? "rgba(88,166,255,0.05)" : "#161b22",
+        transition: "border-color 0.15s, background 0.15s",
       }}
     >
-      <p>Drag &amp; drop your lease PDF here, or click to select</p>
-      <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>Lease documents only · max size 20 megabytes</p>
-      {error && <p style={{ color: "#ef4444", marginTop: 8 }}>{error}</p>}
+      <div style={{ fontSize: "2rem", marginBottom: "0.75rem", opacity: 0.5 }}>&#128196;</div>
+      <p style={{ margin: "0 0 0.35rem", color: "#e6edf3", fontWeight: 500 }}>
+        Drag &amp; drop your lease PDF here, or click to select
+      </p>
+      <p style={{ margin: 0, fontSize: "0.875rem", color: "#8b949e" }}>
+        Lease documents only &middot; max size 20 megabytes
+      </p>
+      {error && <p style={{ color: "#f85149", marginTop: "0.75rem", margin: "0.75rem 0 0", fontSize: "0.875rem" }}>{error}</p>}
       <input
         ref={inputRef}
         data-testid="file-input"

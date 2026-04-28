@@ -10,7 +10,12 @@ router = APIRouter()
 def analyze(request: AnalyzeRequest):
     pdf_bytes = storage.fetch_pdf(request.s3Key)
 
-    text = pdf_parser.extract_text(pdf_bytes)
+    try:
+        text = pdf_parser.extract_text(pdf_bytes)
+    except Exception:
+        storage.delete_pdf(request.s3Key)
+        raise HTTPException(status_code=422, detail="Could not read this PDF. Please upload a text-based lease document.")
+
     try:
         pdf_parser.validate_text(text)
     except ValueError as e:

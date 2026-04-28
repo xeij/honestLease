@@ -8,32 +8,36 @@ import type { SummaryRecord } from "../types";
 
 vi.mock("../api/client");
 
+const _ok = { summary: "Nothing concerning here.", quote: null, action: "No action needed." };
+
 const RECORD: SummaryRecord = {
   summaryId: "abc12345",
   createdAt: 1714176000,
   summary: {
     intro: "Your lease looks mostly fine with one thing to watch.",
+    verdict: "review",
+    keyNumbers: {
+      monthlyRent: "$1,500/month",
+      securityDeposit: "$3,000",
+      leaseLength: "12 months",
+      lateFee: null,
+      earlyTerminationFee: null,
+    },
     categories: [
       {
         name: "Auto-Renewal Clauses",
         severity: "red",
-        findings: ["Auto-renews without notice."],
+        findings: [
+          {
+            summary: "Auto-renews without notice.",
+            quote: "This lease shall automatically renew...",
+            action: "Ask for a 60-day notice requirement.",
+          },
+        ],
       },
-      {
-        name: "Deposit Conditions",
-        severity: "green",
-        findings: ["No issues found — this looks normal."],
-      },
-      {
-        name: "Unusual Fees",
-        severity: "yellow",
-        findings: ["$25/month admin fee is uncommon."],
-      },
-      {
-        name: "Missing Standard Clauses",
-        severity: "green",
-        findings: ["No issues found — this looks normal."],
-      },
+      { name: "Deposit Conditions",       severity: "green",  findings: [_ok] },
+      { name: "Unusual Fees",             severity: "yellow", findings: [{ summary: "$25/month admin fee is uncommon.", quote: null, action: "Ask the landlord to remove it." }] },
+      { name: "Missing Standard Clauses", severity: "green",  findings: [_ok] },
     ],
   },
 };

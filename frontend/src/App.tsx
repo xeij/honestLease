@@ -8,12 +8,14 @@ const queryClient = new QueryClient();
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<UploadPage />} />
-          <Route path="/summary/:id" element={<ResultsPage />} />
-        </Routes>
-      </BrowserRouter>
+      <div style={{ minHeight: "100vh", background: "#0d1117", color: "#e6edf3" }}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<UploadPage />} />
+            <Route path="/summary/:id" element={<ResultsPage />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
     </QueryClientProvider>
   );
 }

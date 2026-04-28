@@ -16,7 +16,14 @@ export function ResultsPage() {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: "center", padding: "4rem", fontFamily: "system-ui, sans-serif" }}>
+      <div
+        style={{
+          textAlign: "center",
+          padding: "4rem",
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          color: "#8b949e",
+        }}
+      >
         Loading summary...
       </div>
     );
@@ -32,12 +39,12 @@ export function ResultsPage() {
         style={{
           maxWidth: 560,
           margin: "2rem auto",
-          padding: "0 1rem",
-          fontFamily: "system-ui, sans-serif",
+          padding: "0 1.25rem",
+          fontFamily: "system-ui, -apple-system, sans-serif",
         }}
       >
         <ErrorBanner message={msg} />
-        <Link to="/" style={{ display: "block", marginTop: "1rem", color: "#3b82f6" }}>
+        <Link to="/" style={{ display: "block", marginTop: "1rem", color: "#58a6ff", textDecoration: "none" }}>
           Analyze another lease
         </Link>
       </div>
@@ -49,37 +56,34 @@ export function ResultsPage() {
   return (
     <div
       style={{
-        maxWidth: 620,
+        maxWidth: 660,
         margin: "0 auto",
-        padding: "2rem 1rem",
-        fontFamily: "system-ui, sans-serif",
+        padding: "2.5rem 1.25rem 3rem",
+        fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      <h1 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "1.5rem" }}>
-        Your Lease Summary
-      </h1>
-      <SummaryIntro intro={data.summary.intro} />
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem" }}>
+      <div style={{ marginBottom: "1.75rem" }}>
+        <Link
+          to="/"
+          style={{ color: "#8b949e", textDecoration: "none", fontSize: "0.875rem", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}
+        >
+          &#8592; Analyze another lease
+        </Link>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, margin: "0.75rem 0 0", color: "#e6edf3" }}>
+          Lease Summary
+        </h1>
+      </div>
+
+      <SummaryIntro summary={data.summary} />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "2rem" }}>
         {data.summary.categories.map((cat) => (
           <CategoryCard key={cat.name} category={cat} />
         ))}
       </div>
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+
+      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", paddingTop: "0.5rem", borderTop: "1px solid #21262d" }}>
         <ShareButton />
-        <Link
-          to="/"
-          style={{
-            padding: "0.6rem 1.25rem",
-            border: "1px solid #d1d5db",
-            borderRadius: 6,
-            color: "#374151",
-            textDecoration: "none",
-            fontWeight: 600,
-            fontSize: "0.9rem",
-          }}
-        >
-          Analyze another lease
-        </Link>
       </div>
     </div>
   );

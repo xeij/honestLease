@@ -13,15 +13,15 @@ export function ShareButton() {
     <button
       onClick={copy}
       style={{
-        background: copied ? "#16a34a" : "#3b82f6",
-        color: "#fff",
-        border: "none",
+        background: copied ? "rgba(63,185,80,0.15)" : "#1f6feb",
+        color: copied ? "#3fb950" : "#e6edf3",
+        border: copied ? "1px solid rgba(63,185,80,0.4)" : "1px solid #388bfd40",
         borderRadius: 6,
         padding: "0.6rem 1.25rem",
         cursor: "pointer",
         fontWeight: 600,
         fontSize: "0.9rem",
-        transition: "background 0.15s",
+        transition: "all 0.15s",
       }}
     >
       {copied ? "Link copied!" : "Copy shareable link"}

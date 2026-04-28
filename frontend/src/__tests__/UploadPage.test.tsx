@@ -44,5 +44,5 @@ test("shows uploading state when analysis starts", async () => {
   renderPage();
   await userEvent.upload(screen.getByTestId("file-input"), PDF_FILE);
   await userEvent.click(screen.getByRole("button", { name: /analyze/i }));
-  expect(await screen.findByText(/analyzing/i)).toBeInTheDocument();
+  expect(await screen.findByText(/reading through/i)).toBeInTheDocument();
 });

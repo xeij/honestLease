@@ -23,17 +23,20 @@ export function UploadPage() {
       style={{
         maxWidth: 560,
         margin: "0 auto",
-        padding: "2rem 1rem",
-        fontFamily: "system-ui, sans-serif",
+        padding: "3rem 1.25rem 2rem",
+        fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      <h1 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-        honestLease
-      </h1>
-      <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
-        Upload your residential lease and get a plain-English summary of the things that matter:
-        auto-renewal traps, deposit conditions, unusual fees, and what&apos;s missing.
-      </p>
+      <div style={{ marginBottom: "2.5rem" }}>
+        <h1 style={{ fontSize: "1.75rem", fontWeight: 700, margin: "0 0 0.4rem", color: "#e6edf3" }}>
+          honestLease
+        </h1>
+        <p style={{ color: "#8b949e", margin: 0, lineHeight: 1.6 }}>
+          Upload your residential lease and get a plain-English breakdown of auto-renewal traps,
+          deposit conditions, unusual fees, and what&apos;s missing — with exact quotes and specific
+          things to ask for.
+        </p>
+      </div>
 
       {errorMessage && (
         <div style={{ marginBottom: "1rem" }}>
@@ -50,14 +53,15 @@ export function UploadPage() {
             style={{
               marginTop: "1rem",
               width: "100%",
-              padding: "0.75rem",
-              background: file ? "#3b82f6" : "#e5e7eb",
-              color: file ? "#fff" : "#9ca3af",
-              border: "none",
-              borderRadius: 6,
+              padding: "0.8rem",
+              background: file ? "#1f6feb" : "#21262d",
+              color: file ? "#e6edf3" : "#484f58",
+              border: `1px solid ${file ? "#388bfd40" : "#30363d"}`,
+              borderRadius: 8,
               fontWeight: 600,
               fontSize: "1rem",
               cursor: file ? "pointer" : "not-allowed",
+              transition: "all 0.15s",
             }}
           >
             Analyze my lease
