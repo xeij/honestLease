@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: honestLease — residential lease PDF analyzer
+
+Parameters:
+  AnthropicApiKey:
+    Type: String
+    NoEcho: true
+    Description: Anthropic API key for Claude
+  AllowedOrigins:
+    Type: String
+    Default: "*"
+    Description: Comma-separated list of allowed CORS origins (set to your Amplify URL in production)
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 60
+    MemorySize: 512
+    Environment:
+      Variables:
+        S3_BUCKET_NAME: !Ref LeasePdfBucket
+        DYNAMODB_TABLE_NAME: !Ref SummariesTable
+        ANTHROPIC_API_KEY: !Ref AnthropicApiKey
+        CLAUDE_MODEL: claude-sonnet-4-6
+        AWS_REGION: !Ref AWS::Region
+        ALLOWED_ORIGINS: !Ref AllowedOrigins
+
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: !Split [",", !Ref AllowedOrigins]
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: app.main.handler
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref LeasePdfBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SummariesTable
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            ApiId: !Ref HttpApi
+
+  LeasePdfBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      LifecycleConfiguration:
+        Rules:
+          - Status: Enabled
+            ExpirationInDays: 1
+
+  SummariesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: summaryId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: summaryId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL — set this as VITE_API_URL in Amplify
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  BucketName:
+    Description: S3 bucket for temporary PDF staging
+    Value: !Ref LeasePdfBucket
+  TableName:
+    Description: DynamoDB summaries table
+    Value: !Ref SummariesTable
