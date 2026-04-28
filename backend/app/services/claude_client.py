@@ -36,7 +36,12 @@ def analyze_lease(lease_text: str) -> dict:
             system=system,
             messages=[{"role": "user", "content": f"Analyze this lease:\n\n{lease_text}"}],
         )
-        raw = message.content[0].text
+        raw = message.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```", 2)[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+            raw = raw.strip()
         try:
             return json.loads(raw)
         except json.JSONDecodeError:
