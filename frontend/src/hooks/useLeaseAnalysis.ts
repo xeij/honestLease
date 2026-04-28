@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getUploadUrl, uploadPdfToS3, analyzeLease } from "../api/client";
+import { getUploadUrl, uploadPdfToS3, analyzeLease, getSummary } from "../api/client";
 import { ApiError } from "../types";
 
 export type AnalysisPhase = "idle" | "uploading" | "analyzing" | "done" | "error";
@@ -11,6 +11,9 @@ export interface UseLeaseAnalysisResult {
   run: (file: File) => Promise<void>;
   reset: () => void;
 }
+
+const POLL_INTERVAL_MS = 3000;
+const MAX_POLLS = 40; // 2 minutes max
 
 export function useLeaseAnalysis(): UseLeaseAnalysisResult {
   const [phase, setPhase] = useState<AnalysisPhase>("idle");
@@ -24,9 +27,23 @@ export function useLeaseAnalysis(): UseLeaseAnalysisResult {
       const { presignedUrl, s3Key } = await getUploadUrl();
       await uploadPdfToS3(presignedUrl, file);
       setPhase("analyzing");
+
       const { summaryId: id } = await analyzeLease(s3Key);
-      setSummaryId(id);
-      setPhase("done");
+
+      for (let attempt = 0; attempt < MAX_POLLS; attempt++) {
+        await new Promise<void>((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+        try {
+          await getSummary(id);
+          setSummaryId(id);
+          setPhase("done");
+          return;
+        } catch (err) {
+          if (err instanceof ApiError && err.status === 202) continue;
+          throw err;
+        }
+      }
+
+      throw new ApiError(408, "Analysis is taking longer than expected. Please try again.");
     } catch (err) {
       const message =
         err instanceof ApiError ? err.message : "Something went wrong. Please try again.";

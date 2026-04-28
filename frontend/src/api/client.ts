@@ -36,5 +36,6 @@ export async function analyzeLease(s3Key: string): Promise<AnalyzeResponse> {
 
 export async function getSummary(summaryId: string): Promise<SummaryRecord> {
   const res = await fetch(`${API_URL}/summary/${summaryId}`);
+  if (res.status === 202) throw new ApiError(202, "pending");
   return handleResponse<SummaryRecord>(res);
 }

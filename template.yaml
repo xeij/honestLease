@@ -15,7 +15,7 @@ Parameters:
 Globals:
   Function:
     Runtime: python3.12
-    Timeout: 60
+    Timeout: 120
     MemorySize: 512
     Environment:
       Variables:
@@ -48,6 +48,10 @@ Resources:
             BucketName: !Ref LeasePdfBucket
         - DynamoDBCrudPolicy:
             TableName: !Ref SummariesTable
+        - Statement:
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-ApiFunction-*"
       Events:
         ApiEvent:
           Type: HttpApi

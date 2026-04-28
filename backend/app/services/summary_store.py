@@ -5,6 +5,7 @@ import uuid
 import boto3
 
 TTL_DAYS = 90
+PENDING_TTL_HOURS = 1
 
 
 def _table():
@@ -16,12 +17,48 @@ def generate_summary_id() -> str:
     return uuid.uuid4().hex[:8]
 
 
+def save_pending(summary_id: str, s3_key: str) -> None:
+    created_at = int(time.time())
+    _table().put_item(
+        Item={
+            "summaryId": summary_id,
+            "status": "pending",
+            "s3Key": s3_key,
+            "createdAt": created_at,
+            "ttl": created_at + PENDING_TTL_HOURS * 3600,
+        }
+    )
+
+
+def update_summary(summary_id: str, summary: dict) -> None:
+    _table().update_item(
+        Key={"summaryId": summary_id},
+        UpdateExpression="SET #s = :s, summary = :summary, #t = :t",
+        ExpressionAttributeNames={"#s": "status", "#t": "ttl"},
+        ExpressionAttributeValues={
+            ":s": "done",
+            ":summary": summary,
+            ":t": int(time.time()) + TTL_DAYS * 86400,
+        },
+    )
+
+
+def mark_failed(summary_id: str, error: str) -> None:
+    _table().update_item(
+        Key={"summaryId": summary_id},
+        UpdateExpression="SET #s = :s, #e = :e",
+        ExpressionAttributeNames={"#s": "status", "#e": "error"},
+        ExpressionAttributeValues={":s": "failed", ":e": error},
+    )
+
+
 def save_summary(summary: dict) -> str:
     summary_id = generate_summary_id()
     created_at = int(time.time())
     _table().put_item(
         Item={
             "summaryId": summary_id,
+            "status": "done",
             "summary": summary,
             "createdAt": created_at,
             "ttl": created_at + TTL_DAYS * 86400,

@@ -1,29 +1,24 @@
-from fastapi import APIRouter, HTTPException
+import json
+import os
+
+import boto3
+from fastapi import APIRouter
 
 from ..models import AnalyzeRequest, AnalyzeResponse
-from ..services import storage, pdf_parser, claude_client, summary_store
+from ..services.summary_store import generate_summary_id, save_pending
 
 router = APIRouter()
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 def analyze(request: AnalyzeRequest):
-    pdf_bytes = storage.fetch_pdf(request.s3Key)
+    summary_id = generate_summary_id()
+    save_pending(summary_id, request.s3Key)
 
-    try:
-        text = pdf_parser.extract_text(pdf_bytes)
-    except Exception:
-        storage.delete_pdf(request.s3Key)
-        raise HTTPException(status_code=422, detail="Could not read this PDF. Please upload a text-based lease document.")
-
-    try:
-        pdf_parser.validate_text(text)
-    except ValueError as e:
-        storage.delete_pdf(request.s3Key)
-        raise HTTPException(status_code=422, detail=str(e))
-
-    summary = claude_client.analyze_lease(text)
-    summary_id = summary_store.save_summary(summary)
-    storage.delete_pdf(request.s3Key)
+    boto3.client("lambda").invoke(
+        FunctionName=os.environ["AWS_LAMBDA_FUNCTION_NAME"],
+        InvocationType="Event",
+        Payload=json.dumps({"summaryId": summary_id, "s3Key": request.s3Key}).encode(),
+    )
 
     return AnalyzeResponse(summaryId=summary_id)

@@ -13,6 +13,7 @@ os.environ.setdefault("S3_BUCKET_NAME", "test-lease-bucket")
 os.environ.setdefault("DYNAMODB_TABLE_NAME", "test-summaries")
 os.environ.setdefault("ANTHROPIC_API_KEY", "test-key")
 os.environ.setdefault("CLAUDE_MODEL", "claude-sonnet-4-6")
+os.environ.setdefault("AWS_LAMBDA_FUNCTION_NAME", "test-function")
 
 
 @pytest.fixture
