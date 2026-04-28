@@ -7,7 +7,8 @@ const QUOTE_BORDER: Record<string, string> = {
   green: "#3fb950",
 };
 
-function FindingItem({ finding, severity }: { finding: Finding; severity: string }) {
+function FindingItem({ finding: raw, severity }: { finding: Finding | string; severity: string }) {
+  const finding: Finding = typeof raw === "string" ? { summary: raw, quote: null, action: null } : raw;
   return (
     <div style={{ paddingBottom: "1rem", marginBottom: "1rem", borderBottom: "1px solid #21262d" }}>
       <p style={{ margin: "0 0 0.5rem", color: "#e6edf3", lineHeight: 1.6 }}>{finding.summary}</p>
@@ -81,7 +82,7 @@ export function CategoryCard({ category }: { category: Category }) {
 
       {allClear && (
         <div style={{ padding: "0.5rem 1.25rem 0.875rem", color: "#8b949e", fontSize: "0.875rem" }}>
-          {category.findings[0]?.summary}
+          {(() => { const f = category.findings[0]; return f ? (typeof f === "string" ? f : f.summary) : null; })()}
         </div>
       )}
     </div>
