@@ -25,7 +25,7 @@ test("renders red severity badge with 'Watch out' label", () => {
   expect(screen.getByText(/watch out/i)).toBeInTheDocument();
 });
 
-test("renders green severity badge with 'Looks normal' label", () => {
+test("renders green severity badge with 'All clear' label", () => {
   render(<CategoryCard category={GREEN_CATEGORY} />);
-  expect(screen.getByText(/looks normal/i)).toBeInTheDocument();
+  expect(screen.getByText(/all clear/i)).toBeInTheDocument();
 });
