@@ -63,6 +63,15 @@ Resources:
         Rules:
           - Status: Enabled
             ExpirationInDays: 1
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - "*"
+            AllowedMethods:
+              - PUT
+            AllowedHeaders:
+              - "*"
+            MaxAge: 3000
 
   SummariesTable:
     Type: AWS::DynamoDB::Table
