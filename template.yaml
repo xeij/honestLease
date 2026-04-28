@@ -23,7 +23,6 @@ Globals:
         DYNAMODB_TABLE_NAME: !Ref SummariesTable
         ANTHROPIC_API_KEY: !Ref AnthropicApiKey
         CLAUDE_MODEL: claude-sonnet-4-6
-        AWS_REGION: !Ref AWS::Region
         ALLOWED_ORIGINS: !Ref AllowedOrigins
 
 Resources:
